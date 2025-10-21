@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tea time 🍵</title>
+
+<!-- فونت نستعلیق -->
+<style>
+@font-face {
+  font-family: 'IranNastaliq';
+  src: url('https://cdn.fontcdn.ir/Font/Persian/IranNastaliq/IranNastaliq.eot');
+  src: url('https://cdn.fontcdn.ir/Font/Persian/IranNastaliq/IranNastaliq.eot?#iefix') format('embedded-opentype'),
+       url('https://cdn.fontcdn.ir/Font/Persian/IranNastaliq/IranNastaliq.woff') format('woff'),
+       url('https://cdn.fontcdn.ir/Font/Persian/IranNastaliq/IranNastaliq.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+</style>
+
+<style>
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background: linear-gradient(135deg, #1B1F3B, #3C2F2F);
+    font-family: 'Tahoma', sans-serif;
+    padding: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+#loader {
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: rgba(20,20,20,0.85);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:1.4em;
+    color:#E0C097;
+    z-index:999;
+    opacity: 1;
+    transition: opacity 0.7s ease;
+}
+
+.card, .poem-card, .playlist-card {
+    width: 90%;
+    max-width: 360px;
+    background: rgba(60,40,30,0.45);
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    backdrop-filter: blur(12px);
+    margin-bottom: 15px;
+    opacity: 0;
+    transform: translateY(15px);
+    transition: all 0.5s ease, box-shadow 0.3s ease;
+    box-shadow: 0 0 25px rgba(224,192,151,0.25);
+}
+.card.show, .poem-card.show, .playlist-card.show { 
+    opacity:1; transform:translateY(0); 
+}
+
+h1 { 
+    color:#E0C097; 
+    font-size:2em; 
+    margin-bottom:15px; 
+    text-shadow:1px 1px 5px rgba(224,192,151,0.5); 
+}
+
+audio { 
+    width:100%; 
+    border-radius:15px; 
+    height:36px; 
+    background-color: rgba(30,30,30,0.8); 
+    box-shadow: inset 0 0 8px rgba(224,192,151,0.5); 
+    transition: box-shadow 0.2s ease;
+}
+
+.poem-card:hover, .card:hover { 
+    transform: scale(1.03); 
+    box-shadow: 0 0 35px rgba(224,192,151,0.35);
+}
+
+/* --- بخش شعر با نستعلیق و قاب طلایی --- */
+.ganjoor-poem-block { 
+    font-family: 'IranNastaliq', Tahoma, sans-serif;
+    color: #F5E6C4;
+    font-size: 1.5em;
+    line-height: 2.4em;
+    text-align: center;
+    border: 2px solid rgba(224,192,151,0.6);
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 0 15px rgba(224,192,151,0.25);
+    background: rgba(60,40,30,0.25);
+}
+
+.steam {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    width: 12px; height: 45px;
+    background: radial-gradient(circle at 50% 50%, rgba(224,192,151,0.5), transparent);
+    border-radius: 50%;
+    animation: steamUp 3s infinite ease-in-out;
+    filter: blur(3px);
+    transform: translateX(-50%);
+}
+.steam:nth-child(2) { left: 45%; animation-delay: 0.8s; }
+.steam:nth-child(3) { left: 55%; animation-delay: 1.6s; }
+
+@keyframes steamUp {
+    0% { transform: translateX(-50%) translateY(0) scale(0.5); opacity:0.5;}
+    50% { transform: translateX(-50%) translateY(-30px) scale(0.7); opacity:0.3;}
+    100% { transform: translateX(-50%) translateY(-60px) scale(1); opacity:0;}
+}
+
+.playlist-card { position: relative; }
+.playlist-header {
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor:pointer;
+}
+.playlist-header h3 { color:#E0C097; margin:0; font-size:1.2em; }
+.toggle-btn { background: none; border:none; font-size:1.2em; cursor:pointer; color:#E0C097; }
+
+.playlist-card ul { 
+    list-style:none; padding:0; margin:10px 0 0 0; 
+    display:block; max-height:200px; overflow-y:auto; 
+    transition: max-height 0.3s ease, opacity 0.3s ease; 
+}
+.playlist-card ul.hidden { 
+    max-height:0; opacity:0; overflow:hidden; 
+}
+
+.playlist-card ul li {
+    padding: 8px 10px;
+    border-radius:10px;
+    margin-bottom:5px;
+    cursor:pointer;
+    background: rgba(50,30,20,0.6);
+    color:#E0C097;
+    display:flex;
+    justify-content: space-between;
+    transition:0.25s;
+}
+.playlist-card ul li:hover, .playlist-card ul li.active { 
+    background: rgba(224,192,151,0.25); 
+    transform: scale(1.03); 
+}
+
+.bg-sticker {
+    position: absolute;
+    font-size: 16px;
+    color: rgba(200,180,150,0.15);
+    user-select: none;
+    pointer-events: none;
+    animation: float 12s infinite linear;
+}
+
+@keyframes float {
+    0% { transform: translateY(0) rotate(0deg);}
+    50% { transform: translateY(-20px) rotate(180deg);}
+    100% { transform: translateY(0) rotate(360deg);}
+}
+
+@media (max-width:480px){
+    h1 { font-size:1.6em; }
+    .steam { height:35px; width:10px;}
+    .card, .poem-card, .playlist-card { padding:15px; }
+    audio { height:28px; }
+}
+</style>
+</head>
+<body>
+
+<div id="loader">در حال آماده‌سازی موسیقی و شعر...</div>
+
+<div class="steam"></div>
+<div class="steam"></div>
+<div class="steam"></div>
+
+<div class="card" id="musicCard">
+<h1>Tea time 🍵</h1>
+<audio id="audioPlayer" controls></audio>
+</div>
+
+<div class="poem-card" id="poemCard">
+<div class="ganjoor-block">
+<div class="ganjoor-poem-block" id="poemContent">
+<script type="text/javascript" src="https://c.ganjoor.net/beyt.php"></script>
+</div>
+</div>
+</div>
+
+<div class="playlist-card" id="playlistCard">
+<div class="playlist-header">
+<h3>لیست پخش</h3>
+<button class="toggle-btn" id="togglePlaylist">👁</button>
+</div>
+<ul id="playlist"></ul>
+</div>
+
+<script>
+/* ستاره‌ها روی بک‌گراند */
+const numStars = 120;
+for (let i = 0; i < numStars; i++) {
+    const star = document.createElement('div');
+    star.style.position = 'absolute';
+    star.style.width = star.style.height = (Math.random() * 2 + 1) + 'px';
+    star.style.backgroundColor = Math.random() > 0.5 ? '#F5E6C4' : '#FFEBCD';
+    star.style.borderRadius = '50%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.opacity = Math.random() * 0.8 + 0.2;
+    star.style.pointerEvents = 'none';
+    document.body.appendChild(star);
+}
+
+/* استیکرها */
+const stickers = ["🎻","🎸","🎶","🎵","🎼","🪕","🎧","🎹","🎺"];
+const numStickers = 40;
+const padding = 5; 
+const cols = Math.ceil(Math.sqrt(numStickers));
+const rows = Math.ceil(numStickers / cols);
+for(let i=0;i<numStickers;i++){
+    const div = document.createElement('div');
+    div.className='bg-sticker';
+    div.textContent=stickers[Math.floor(Math.random()*stickers.length)];
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    div.style.left = (padding + col*(90/cols) + Math.random()*(90/cols - padding)) + '%';
+    div.style.top = (padding + row*(90/rows) + Math.random()*(90/rows - padding)) + '%';
+    div.style.fontSize = (10 + Math.random()*20) + 'px';
+    div.style.animationDuration = (8 + Math.random()*8) + 's';
+    document.body.appendChild(div);
+}
+
+/* موزیک و لیست پخش */
+const user = "1mah3jav8yar4adi-ops";
+const repo = "Tea-time-oud";
+const folderPath = "";
+
+const audioPlayer = document.getElementById("audioPlayer");
+const playlistUl = document.getElementById("playlist");
+let tracks = [];
+let currentTrackIndex = 0;
+
+// گرفتن MP3ها بر اساس تاریخ آخرین کامیت (جدیدترین ابتدا)
+async function getMP3Files() {
+    const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/${folderPath}`;
+    try {
+        const response = await fetch(apiUrl, {headers: { 'Accept': 'application/vnd.github.v3+json' }});
+        if(!response.ok) throw new Error("GitHub API پاسخ نداد: " + response.status);
+        let files = await response.json();
+        files = files.filter(f => f.name && f.name.toLowerCase().endsWith('.mp3'));
+
+        const commitPromises = files.map(async f => {
+            try {
+                const commitsUrl = `https://api.github.com/repos/${user}/${repo}/commits?path=${encodeURIComponent(f.path)}&per_page=1`;
+                const commitResp = await fetch(commitsUrl, {headers: { 'Accept': 'application/vnd.github.v3+json' }});
+                if(!commitResp.ok) {
+                    console.warn('Commit API failed for', f.path, commitResp.status);
+                    return { ...f, commitDate: '1970-01-01T00:00:00Z' };
+                }
+                const commits = await commitResp.json();
+                const first = Array.isArray(commits) ? commits[0] : commits;
+                const commitDate = first?.commit?.committer?.date || first?.commit?.author?.date || '1970-01-01T00:00:00Z';
+                return { ...f, commitDate };
+            } catch (err) {
+                console.error('خطا در دریافت کامیت برای', f.path, err);
+                return { ...f, commitDate: '1970-01-01T00:00:00Z' };
+            }
+        });
+
+        let filesWithDates = await Promise.all(commitPromises);
+        // Sort newest first (descending)
+        filesWithDates.sort((a, b) => new Date(b.commitDate) - new Date(a.commitDate));
+
+        return filesWithDates.map(f => ({
+            url: f.download_url,
+            name: f.name.replace(/\.mp3$/i,'')
+        }));
+    } catch (err) { 
+        console.error("خطا در دریافت فایل‌ها:", err); 
+        return []; 
+    }
+}
+
+function playTrack(index){
+    currentTrackIndex = index;
+    audioPlayer.src = tracks[currentTrackIndex].url;
+    audioPlayer.play();
+    highlightActive();
+}
+
+function highlightActive(){
+    Array.from(playlistUl.children).forEach((li, idx) => {
+        li.classList.toggle('active', idx === currentTrackIndex);
+    });
+}
+
+document.getElementById('togglePlaylist').addEventListener('click',()=>{
+    playlistUl.classList.toggle('hidden');
+});
+
+async function setupPlaylist(){
+    tracks = await getMP3Files();
+    if(tracks.length === 0) return;
+    playlistUl.innerHTML = '';
+    tracks.forEach((track, index) => {
+        const parts = track.name.split('-');
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${parts[0].trim()}</span><span>${parts[1]?parts[1].trim():""}</span>`;
+        li.addEventListener('click', () => playTrack(index));
+        playlistUl.appendChild(li);
+    });
+    playTrack(0);
+    audioPlayer.onended = () => { playTrack((currentTrackIndex + 1) % tracks.length); }
+}
+
+window.addEventListener('load', async ()=>{
+    setTimeout(async ()=>{
+        document.getElementById('musicCard').classList.add('show');
+        document.getElementById('poemCard').classList.add('show');
+        document.getElementById('playlistCard').classList.add('show');
+        await setupPlaylist();
+        const loader = document.getElementById('loader');
+        loader.style.opacity = 0;
+        setTimeout(()=>{loader.style.display='none';},500);
+    },200);
+});
+</script>
+
+</body>
+</html>
